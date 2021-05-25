@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Simple Account</string>
+    <string name="search_title">Search</string>
+    <string name="add_account">Add Account</string>
+    <string name="update_account">Update Account</string>
+    <string name="add_transaction">Add Transaction</string>
+</resources>

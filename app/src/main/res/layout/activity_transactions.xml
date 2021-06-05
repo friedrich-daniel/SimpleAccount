@@ -26,7 +26,7 @@
         android:id="@+id/textViewTransactions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Transactions" />
+        android:text="@string/transactions" />
 
     <include
         layout="@layout/recycler_view_transactions"
@@ -42,6 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/add_transaction"
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_baseline_add_white_24" />
 

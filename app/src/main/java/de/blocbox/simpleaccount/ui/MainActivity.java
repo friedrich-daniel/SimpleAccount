@@ -97,14 +97,17 @@ public class MainActivity extends AppCompatActivity {
 
                 mAccountsViewModel.deletePerson( accountWithTransactionEntity.accountEntity );
 
-                Snackbar snackbar = Snackbar.make( recyclerView, "Item was removed from the list.", Snackbar.LENGTH_INDEFINITE );
+                String text = accountWithTransactionEntity.accountEntity.getFirstName() + " " +
+                              accountWithTransactionEntity.accountEntity.getLastName() + " " +
+                              getResources().getString(R.string.item_removed);
 
-                snackbar.setActionTextColor( Color.WHITE );
-                snackbar.setAction( "UNDO", view -> {
-                    mAccountsViewModel.addPerson( accountWithTransactionEntity.accountEntity );
-                    recyclerView.scrollToPosition( position );
-                } );
-                snackbar.show();
+                Snackbar.make( recyclerView, text, Snackbar.LENGTH_INDEFINITE )
+                        .setActionTextColor( Color.WHITE )
+                        .setAction( R.string.undo, view -> {
+                            mAccountsViewModel.addPerson( accountWithTransactionEntity.accountEntity );
+                            recyclerView.scrollToPosition( position );
+                            } )
+                        .show();
             }
         };
 
@@ -142,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                             fileInputStream.close();
                             outputStream.flush();
                             outputStream.close();
-                            Toast.makeText( this, "Success: File saved", Toast.LENGTH_LONG ).show(); //Uri.decode( data.getData().getPath())
+                            Toast.makeText( this, "Success: " + "File saved", Toast.LENGTH_LONG ).show(); //Uri.decode( data.getData().getPath())
                         }catch (IOException | NullPointerException e)
                         {
                             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

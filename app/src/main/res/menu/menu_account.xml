@@ -5,7 +5,7 @@
     <item
         android:id="@+id/app_bar_save"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="Item"
+        android:title="@string/save"
         app:showAsAction="ifRoom|collapseActionView" />
 
 </menu>

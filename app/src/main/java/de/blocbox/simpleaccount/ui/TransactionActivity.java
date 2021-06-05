@@ -83,9 +83,9 @@ public class TransactionActivity extends AppCompatActivity {
 
             if (transactionUid == TRANSACTION_UID_UNDEFINED)
             {
-                getSupportActionBar().setTitle( "Add Transaction" );
+                getSupportActionBar().setTitle( R.string.add_transaction );
             }else{
-                getSupportActionBar().setTitle( "Update Transaction" );
+                getSupportActionBar().setTitle( R.string.update_transaction );
 
                 final Observer<TransactionEntity> transactionObserver = transactionEntity -> {
                     // Update the UI

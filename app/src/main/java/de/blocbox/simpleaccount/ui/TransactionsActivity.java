@@ -41,7 +41,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setTitle( "View Transactions" );
+            actionBar.setTitle( R.string.view_transactions );
         }
 
         Intent intent = getIntent();
@@ -80,9 +80,12 @@ public class TransactionsActivity extends AppCompatActivity {
 
                     mAccountViewModel.deleteTransaction( transactionEntity );
 
-                    Snackbar.make( recyclerView, "Item was removed from the list.", Snackbar.LENGTH_INDEFINITE )
+                    String text = transactionEntity.getDescription() + " " +
+                            getResources().getString(R.string.item_removed);
+
+                    Snackbar.make( recyclerView, text, Snackbar.LENGTH_INDEFINITE )
                             .setActionTextColor( Color.WHITE )
-                            .setAction( "UNDO", view -> {
+                            .setAction( R.string.undo, view -> {
                                 mAccountViewModel.addTransaction( transactionEntity );
                                 recyclerView.scrollToPosition( position );
                                 } )
@@ -106,12 +109,11 @@ public class TransactionsActivity extends AppCompatActivity {
         if(accountUid != ACCOUNT_UID_UNDEFINED) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate( R.menu.menu_transactions, menu );
-            MenuItem updateAccountItem = menu.findItem( R.id.update_account );
+            MenuItem updateAccountItem = menu.findItem( R.id.edit_account );
             updateAccountItem.setOnMenuItemClickListener( menuItem -> {
                 Intent intent = new Intent(getBaseContext(), AccountActivity.class);
                 intent =  intent.putExtra("AccountEntity.uid", accountUid);
                 startActivity(intent);
-                //finish();
                 return true;
             } );
             MenuItem addTransactionItem = menu.findItem( R.id.add_transaction );
@@ -119,7 +121,6 @@ public class TransactionsActivity extends AppCompatActivity {
                 Intent intent = new Intent(getBaseContext(), TransactionActivity.class);
                 intent =  intent.putExtra("AccountEntity.uid", accountUid);
                 startActivity(intent);
-                //finish();
                 return true;
             } );
         }

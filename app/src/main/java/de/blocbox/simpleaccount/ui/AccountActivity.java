@@ -44,7 +44,7 @@ public class AccountActivity extends AppCompatActivity {
             }
         }else{
             if(actionBar != null) {
-                actionBar.setTitle( R.string.update_account );
+                actionBar.setTitle( R.string.edit_account );
                 actionBar.setDisplayHomeAsUpEnabled( true );
             }
             findViewById( R.id.linear_layout_person ).setVisibility( View.INVISIBLE );

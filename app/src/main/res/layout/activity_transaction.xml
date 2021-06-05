@@ -15,29 +15,31 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Amount" />
+            android:text="@string/amount" />
 
         <EditText
             android:id="@+id/editTextAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="amount"
-            android:inputType="numberSigned|numberDecimal" />
+            android:hint="@string/amount"
+            android:inputType="numberSigned|numberDecimal"
+            android:importantForAutofill="no" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Description" />
+            android:text="@string/description" />
 
         <EditText
             android:id="@+id/editTextDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="description"
+            android:hint="@string/description"
             android:gravity="start|top"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:importantForAutofill="no" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Account Type" />
+            android:text="@string/account_type" />
 
         <RadioGroup
             android:id="@+id/radioAccountType"
@@ -30,46 +30,48 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="Group" />
+                android:text="@string/group" />
 
             <RadioButton
                 android:id="@+id/radioButtonMale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Male" />
+                android:text="@string/male" />
 
             <RadioButton
                 android:id="@+id/radioButtonFemale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Female" />
+                android:text="@string/female" />
         </RadioGroup>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="First name" />
+            android:text="@string/first_name" />
 
         <EditText
             android:id="@+id/editTextFirstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="first name"
-            android:inputType="textPersonName" />
+            android:hint="@string/first_name"
+            android:inputType="textPersonName"
+            android:importantForAutofill="no" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Last name" />
+            android:text="@string/last_name" />
 
         <EditText
             android:id="@+id/editTextLastName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="last name"
-            android:inputType="textPersonName" />
+            android:hint="@string/last_name"
+            android:inputType="textPersonName"
+            android:importantForAutofill="no" />
 
     </LinearLayout>
 

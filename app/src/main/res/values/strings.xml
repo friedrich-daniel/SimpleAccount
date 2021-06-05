@@ -1,7 +1,22 @@
 <resources>
-    <string name="app_name">Simple Account</string>
-    <string name="search_title">Search</string>
+    <string name="app_name" translatable="false">Simple Account</string>
     <string name="add_account">Add Account</string>
-    <string name="update_account">Update Account</string>
+    <string name="edit_account">Edit Account</string>
+    <string name="view_transactions">View Transactions</string>
     <string name="add_transaction">Add Transaction</string>
+    <string name="update_transaction">Update Transaction</string>
+    <string name="export">Export</string>
+    <string name="import_">Import</string>
+    <string name="account_type">Account Type</string>
+    <string name="group">Group</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="amount">Amount</string>
+    <string name="description">Description</string>
+    <string name="transactions">Transactions</string>
+    <string name="item_removed">was removed from the list.</string>
+    <string name="undo">UNDO</string>
+    <string name="save">Save</string>
 </resources>

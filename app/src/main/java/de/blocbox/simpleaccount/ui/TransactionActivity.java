@@ -4,29 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
-
-import de.blocbox.simpleaccount.R;
-import de.blocbox.simpleaccount.db.entity.TransactionEntity;
-import de.blocbox.simpleaccount.viewmodel.TransactionViewModel;
-
-import java.text.DecimalFormatSymbols;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import de.blocbox.simpleaccount.R;
+import de.blocbox.simpleaccount.db.entity.TransactionEntity;
+import de.blocbox.simpleaccount.viewmodel.TransactionViewModel;
 
 public class TransactionActivity extends AppCompatActivity {
 
@@ -35,20 +31,21 @@ public class TransactionActivity extends AppCompatActivity {
     private int accountUid = ACCOUNT_UID_UNDEFINED;
     private final int TRANSACTION_UID_UNDEFINED = -1;
     private int transactionUid = TRANSACTION_UID_UNDEFINED;
-    private TransactionEntity lastTransactionEntity;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
 
         Intent intent = getIntent();
-        accountUid = (int) intent.getIntExtra("AccountEntity.uid", ACCOUNT_UID_UNDEFINED);
-        transactionUid = (int) intent.getIntExtra("TransactionEntity.uid", TRANSACTION_UID_UNDEFINED);
+        accountUid = intent.getIntExtra("AccountEntity.uid", ACCOUNT_UID_UNDEFINED);
+        transactionUid = intent.getIntExtra("TransactionEntity.uid", TRANSACTION_UID_UNDEFINED);
 
-        transactionViewModel = (TransactionViewModel) ViewModelProviders.of(this).get( TransactionViewModel.class);
+        transactionViewModel = new ViewModelProvider(this).get( TransactionViewModel.class);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+        }
 
         if(accountUid != ACCOUNT_UID_UNDEFINED)
         {
@@ -68,7 +65,7 @@ public class TransactionActivity extends AppCompatActivity {
                     //char decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
                     //String regexp = "[-]?[0-9]{0,10}+(((\\.[0-9]{0,2})?)|(\\.)?)";
                     //String regexp = "[-]?[0-9]{0,10}+((([\\.,]{1}[0-9]{0,2})?)|([\\.,]{1})?)";
-                    String regexp = "[-]?[0-9]{0,10}+(\\.{1}[0-9]{0,2})?";
+                    String regexp = "[-]?[0-9]{0,10}+(\\.[0-9]{0,2})?";
                     Matcher matcher = Pattern.compile(regexp).matcher( s.toString() );
                     if (!matcher.matches()) {
                         s.replace( 0, s.length(), beforeChanged );
@@ -78,13 +75,10 @@ public class TransactionActivity extends AppCompatActivity {
             } );
 
             ((EditText) findViewById( R.id.editTextDescription )).setFilters( new InputFilter[] {
-                new InputFilter() {
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                    (source, start, end, dest, d_start, d_end) -> {
                         invalidateOptionsMenu();
                         return null;
                     }
-                }
             });
 
             if (transactionUid == TRANSACTION_UID_UNDEFINED)
@@ -93,16 +87,13 @@ public class TransactionActivity extends AppCompatActivity {
             }else{
                 getSupportActionBar().setTitle( "Update Transaction" );
 
-                final Observer<TransactionEntity> transactionObserver = new Observer<TransactionEntity>() {
-                    @Override
-                    public void onChanged(@Nullable final TransactionEntity transactionEntity) {
-                        // Update the UI
-                        EditText editTextAmount = findViewById( R.id.editTextAmount);
-                        EditText editTextDescription = findViewById( R.id.editTextDescription);
+                final Observer<TransactionEntity> transactionObserver = transactionEntity -> {
+                    // Update the UI
+                    EditText editTextAmount = findViewById( R.id.editTextAmount);
+                    EditText editTextDescription = findViewById( R.id.editTextDescription);
 
-                        editTextAmount.setText( String.format( Locale.ENGLISH, "%.2f", transactionEntity.getAmount() ) );
-                        editTextDescription.setText( transactionEntity.getDescription() );
-                    }
+                    editTextAmount.setText( String.format( Locale.ENGLISH, "%.2f", transactionEntity.getAmount() ) );
+                    editTextDescription.setText( transactionEntity.getDescription() );
                 };
                 transactionViewModel.getTransaction( transactionUid ).observe( this, transactionObserver );
             }
@@ -125,7 +116,7 @@ public class TransactionActivity extends AppCompatActivity {
             allValid = false;
         }
 
-        String regexp = "[-]?[0-9]{0,10}+(\\.{1}[0-9]{0,2})?";
+        String regexp = "[-]?[0-9]{0,10}+(\\.[0-9]{0,2})?";
         Matcher matcher = Pattern.compile(regexp).matcher( editTextAmount.getText().toString() );
         if (!matcher.matches()) {
             allValid = false;
@@ -142,24 +133,20 @@ public class TransactionActivity extends AppCompatActivity {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate( R.menu.menu_transaction, menu );
             MenuItem saveItem = menu.findItem( R.id.app_bar_save );
-            saveItem.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
+            saveItem.setOnMenuItemClickListener( menuItem -> {
 
-                    double amount =  Double.parseDouble(((EditText) findViewById( R.id.editTextAmount )).getText().toString());
-                    String description = ((EditText) findViewById( R.id.editTextDescription )).getText().toString();
+                double amount =  Double.parseDouble(((EditText) findViewById( R.id.editTextAmount )).getText().toString());
+                String description = ((EditText) findViewById( R.id.editTextDescription )).getText().toString();
 
-
-                    if (transactionUid == TRANSACTION_UID_UNDEFINED)
-                    {
-                        transactionViewModel.addTransaction( new TransactionEntity( accountUid, amount, description , new Date()) );
-                    }else{
-                        transactionViewModel.updateTransaction(  new TransactionEntity( transactionUid, accountUid, amount, description, new Date() ) );
-                    }
-
-                    finish();
-                    return true;
+                if (transactionUid == TRANSACTION_UID_UNDEFINED)
+                {
+                    transactionViewModel.addTransaction( new TransactionEntity( accountUid, amount, description , new Date()) );
+                }else{
+                    transactionViewModel.updateTransaction(  new TransactionEntity( transactionUid, accountUid, amount, description, new Date() ) );
                 }
+
+                finish();
+                return true;
             } );
             validateInputAndSetDisableSaveButton(saveItem);
         }

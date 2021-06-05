@@ -5,10 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import de.blocbox.simpleaccount.model.AccountType;
 import de.blocbox.simpleaccount.model.Account;
-
-import java.util.Comparator;
+import de.blocbox.simpleaccount.model.AccountType;
 
 @Entity(tableName = "accounts")
 public class AccountEntity implements Account {
@@ -80,10 +78,4 @@ public class AccountEntity implements Account {
         this.lastName = lastName;
         this.accountType = accountType;
     }
-
-    public static Comparator<AccountEntity> CompareFirstName = new Comparator<AccountEntity>() {
-        public int compare(AccountEntity s1, AccountEntity s2) {
-            return s1.firstName.compareTo( s2.firstName );
-        }
-    };
 }

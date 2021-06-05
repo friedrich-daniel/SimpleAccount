@@ -49,13 +49,10 @@ public class DataRepository {
 
     public void checkpoint() {
         checkpointInProgress = true;
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                mAppDatabase.accountDao().checkpoint( new SimpleSQLiteQuery( "pragma wal_checkpoint(full)" ) );
-                checkpointInProgress = false;
-            }
-        });
+        mDiskIO.execute( () -> {
+            mAppDatabase.accountDao().checkpoint( new SimpleSQLiteQuery( "pragma wal_checkpoint(full)" ) );
+            checkpointInProgress = false;
+        } );
     }
 
     public boolean getCheckpointInProgress()
@@ -76,68 +73,36 @@ public class DataRepository {
     }
 
     public void insertAccount(final AccountEntity accountEntity) {
-        mDiskIO.execute( new Runnable() {
-                @Override
-                public void run() {
-                    mAppDatabase.accountDao().insertPerson( accountEntity );
-                }
-            });
+        mDiskIO.execute( () -> mAppDatabase.accountDao().insertPerson( accountEntity ) );
     }
 
     public void updateAccount(final AccountEntity accountEntity) {
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                mAppDatabase.accountDao().updatePerson( accountEntity );
-            }
-        });
+        mDiskIO.execute( () -> mAppDatabase.accountDao().updatePerson( accountEntity ) );
     }
 
     public void deleteAccount(final AccountEntity accountEntity){
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                //try{
-                //    Thread.sleep(500);
-                //} catch (InterruptedException ignored) {
-                //}
-                mAppDatabase.accountDao().deletePerson( accountEntity );
-            }
-        });
+        mDiskIO.execute( () -> {
+            //try{
+            //    Thread.sleep(500);
+            //} catch (InterruptedException ignored) {
+            //}
+            mAppDatabase.accountDao().deletePerson( accountEntity );
+        } );
     }
 
     public LiveData<TransactionEntity> getTransaction(int transactionUid) {
         return mAppDatabase.transactionDao().loadTransaction( transactionUid );
     }
 
-    public LiveData<List<TransactionEntity>> getTransactions(int accountUid) {
-        return mAppDatabase.transactionDao().loadTransactions( accountUid );
-    }
-
     public void insertTransaction(final TransactionEntity transactionEntity) {
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                mAppDatabase.transactionDao().insertTransaction( transactionEntity );
-            }
-        });
+        mDiskIO.execute( () -> mAppDatabase.transactionDao().insertTransaction( transactionEntity ) );
     }
 
     public void updateTransaction(final TransactionEntity transactionEntity){
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                mAppDatabase.transactionDao().updateTransaction(  transactionEntity );
-            }
-        });
+        mDiskIO.execute( () -> mAppDatabase.transactionDao().updateTransaction(  transactionEntity ) );
     }
 
     public void deleteTransaction(final TransactionEntity transactionEntity){
-        mDiskIO.execute( new Runnable() {
-            @Override
-            public void run() {
-                mAppDatabase.transactionDao().deleteTransaction(  transactionEntity );
-            }
-        });
+        mDiskIO.execute( () -> mAppDatabase.transactionDao().deleteTransaction(  transactionEntity ) );
     }
 }

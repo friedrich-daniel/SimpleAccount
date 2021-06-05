@@ -1,7 +1,6 @@
 package de.blocbox.simpleaccount.db.entity;
 
 import androidx.room.Embedded;
-import androidx.room.Query;
 import androidx.room.Relation;
 
 import java.util.List;

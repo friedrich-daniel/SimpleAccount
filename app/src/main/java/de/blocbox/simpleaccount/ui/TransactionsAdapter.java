@@ -28,9 +28,9 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
         public ViewHolder(@NonNull View itemView) {
             super( itemView );
-             textViewAmount = (TextView) itemView.findViewById( R.id.textViewAmount );
-             textViewDescription = (TextView) itemView.findViewById( R.id.textViewDescription );
-             textViewDate = (TextView) itemView.findViewById( R.id.textViewDate );
+             textViewAmount = itemView.findViewById( R.id.textViewAmount );
+             textViewDescription = itemView.findViewById( R.id.textViewDescription );
+             textViewDate = itemView.findViewById( R.id.textViewDate );
 
              itemView.setOnClickListener( this );
         }
@@ -51,7 +51,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
     public TransactionsAdapter()
     {
-        transactions = new ArrayList<TransactionEntity>();
+        transactions = new ArrayList<>();
     }
 
     public void setTransactions(List<TransactionEntity> transactions)
@@ -65,6 +65,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         return transactions;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -72,8 +73,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         // Inflate the custom layout
         View view = inflater.inflate( R.layout.recycler_view_transaction_item, parent, false);
         // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(view);
-        return viewHolder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         TransactionEntity transaction = transactions.get( position );
         viewHolder.textViewAmount.setText( String.format( Locale.ENGLISH,"%.2f", transaction.getAmount()) );
         viewHolder.textViewDescription.setText( transaction.getDescription() );
-        viewHolder.textViewDate.setText( new SimpleDateFormat("yyyy-MM-dd HH:mm").format( transaction.getDate() ) );
+        viewHolder.textViewDate.setText( new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format( transaction.getDate() ) );
     }
 
     @Override

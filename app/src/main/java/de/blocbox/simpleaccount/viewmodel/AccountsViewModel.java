@@ -1,20 +1,17 @@
 package de.blocbox.simpleaccount.viewmodel;
 
 import android.app.Application;
-import android.net.Uri;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-import de.blocbox.simpleaccount.SimpleAccountApp;
+import java.util.List;
+
 import de.blocbox.simpleaccount.DataRepository;
+import de.blocbox.simpleaccount.SimpleAccountApp;
 import de.blocbox.simpleaccount.db.entity.AccountEntity;
 import de.blocbox.simpleaccount.db.entity.AccountWithTransactionEntity;
-
-import java.io.OutputStream;
-import java.util.List;
 
 public class AccountsViewModel extends AndroidViewModel {
 

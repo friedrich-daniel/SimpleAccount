@@ -1,5 +1,6 @@
 package de.blocbox.simpleaccount.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,13 +14,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import de.blocbox.simpleaccount.DataRepository;
 import de.blocbox.simpleaccount.R;
@@ -51,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private AccountAdapter accountAdapter;
     private AccountsViewModel mAccountsViewModel;
 
-    private static final int REQUEST_CODE_ACTION_CREATE_DOCUMENT = 11;
-    private static final int REQUEST_CODE_ACTION_GET_CONTENT = 12;
+    ActivityResultLauncher<Intent> activityResultLauncherActionCreateDocument;
+    ActivityResultLauncher<Intent> activityResultLauncherActionGetContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,38 +62,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView( R.layout.activity_main );
 
         final Toolbar toolbar = findViewById( R.id.toolbar );
-        //toolbar.setNavigationIcon(R.drawable.ic_menu_black_24dp);
         setSupportActionBar( toolbar );
 
         FloatingActionButton fab = findViewById( R.id.floatingActionButtonAddAccount );
-        fab.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity( new Intent( view.getContext(), AccountActivity.class ) );
-            }
-        } );
+        fab.setOnClickListener( view -> startActivity( new Intent( view.getContext(), AccountActivity.class ) ) );
 
         accountAdapter = new AccountAdapter();
         final RecyclerView recyclerView = findViewById( R.id.recyclerViewAccounts );
         recyclerView.setAdapter( accountAdapter );
         recyclerView.setLayoutManager( new LinearLayoutManager( this ) );
 
-        final Observer<List<AccountWithTransactionEntity>> accountsWithTransactionsObserver = new Observer<List<AccountWithTransactionEntity>>() {
-            @Override
-            public void onChanged(@Nullable final List<AccountWithTransactionEntity> accountsWithTransactions) {
-                // Update the UI
-                Collections.sort( accountsWithTransactions );
-                accountAdapter.setAccountWithTransactionsList( accountsWithTransactions );
-                //final MenuItem searchItem = getSupportActionBar().getfindViewById(R.id.app_bar_search);
-                final MenuItem searchItem = toolbar.getMenu().findItem( R.id.app_bar_search );
-                if (searchItem != null) { //null within first call since onCreateOptionsMenu() not yet called
-                    final SearchView searchView = (SearchView) searchItem.getActionView();
-                    String query = "";
-                    if (searchView.isIconified()) {
-                        query = searchView.getQuery().toString();
-                    }
-                    accountAdapter.getFilter().filter( query );
+        final Observer<List<AccountWithTransactionEntity>> accountsWithTransactionsObserver = accountsWithTransactions -> {
+            Collections.sort( accountsWithTransactions );
+            accountAdapter.setAccountWithTransactionsList( accountsWithTransactions );
+            final MenuItem searchItem = toolbar.getMenu().findItem( R.id.app_bar_search );
+            if (searchItem != null) { //null within first call since onCreateOptionsMenu() not yet called
+                final SearchView searchView = (SearchView) searchItem.getActionView();
+                String query = "";
+                if (searchView.isIconified()) {
+                    query = searchView.getQuery().toString();
                 }
+                accountAdapter.getFilter().filter( query );
             }
         };
         mAccountsViewModel = new ViewModelProvider(this).get( AccountsViewModel.class );
@@ -109,12 +100,9 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar snackbar = Snackbar.make( recyclerView, "Item was removed from the list.", Snackbar.LENGTH_INDEFINITE );
 
                 snackbar.setActionTextColor( Color.WHITE );
-                snackbar.setAction( "UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mAccountsViewModel.addPerson( accountWithTransactionEntity.accountEntity );
-                        recyclerView.scrollToPosition( position );
-                    }
+                snackbar.setAction( "UNDO", view -> {
+                    mAccountsViewModel.addPerson( accountWithTransactionEntity.accountEntity );
+                    recyclerView.scrollToPosition( position );
                 } );
                 snackbar.show();
             }
@@ -122,6 +110,86 @@ public class MainActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper( swipeToDeleteCallback );
         itemTouchHelper.attachToRecyclerView( recyclerView );
+
+
+        activityResultLauncherActionCreateDocument = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+
+                        //https://androidexplained.github.io/android/room/2020/10/03/room-backup-restore.html
+                        mAccountsViewModel.checkpoint();
+                        //TODO: avoid active waiting
+                        while(mAccountsViewModel.getCheckpointInProgress())
+                        {
+                        }
+                        try{
+                            Objects.requireNonNull(data);
+                            Objects.requireNonNull(data.getData());
+                            OutputStream outputStream = getContentResolver().openOutputStream(data.getData());
+                            Objects.requireNonNull( outputStream );
+                            File sourceFile = new File( (((SimpleAccountApp)mAccountsViewModel.getApplication()).getAppDatabase().getOpenHelper().getWritableDatabase().getPath()) );
+                            FileInputStream fileInputStream = new FileInputStream(sourceFile);
+
+                            int length;
+                            byte[] bytes = new byte[1024];
+
+                            while ((length = fileInputStream.read(bytes)) != -1) {
+                                outputStream.write(bytes, 0, length);
+                            }
+
+                            fileInputStream.close();
+                            outputStream.flush();
+                            outputStream.close();
+                            Toast.makeText( this, "Success: File saved", Toast.LENGTH_LONG ).show(); //Uri.decode( data.getData().getPath())
+                        }catch (IOException | NullPointerException e)
+                        {
+                            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } );
+
+        activityResultLauncherActionGetContent = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+
+                        try {
+                            Objects.requireNonNull(data);
+                            Objects.requireNonNull(data.getData());
+                            InputStream inputStream = getContentResolver().openInputStream( data.getData() );
+                            Objects.requireNonNull(inputStream);
+                            File destFile = new File(((SimpleAccountApp)mAccountsViewModel.getApplication()).getAppDatabase().getOpenHelper().getWritableDatabase().getPath());
+                            FileOutputStream fileOutputStream = new FileOutputStream( destFile );
+
+                            AppDatabase.destroyInstance();
+                            DataRepository.destroyInstance();
+
+                            int length;
+                            byte[] bytes = new byte[1024];
+
+                            while ((length = inputStream.read(bytes)) != -1) {
+                                fileOutputStream.write(bytes, 0, length);
+                            }
+
+                            inputStream.close();
+                            fileOutputStream.flush();
+                            fileOutputStream.close();
+
+                            finish();
+                            Intent intent = getPackageManager().getLaunchIntentForPackage("de.blocbox.simpleaccount");
+                            startActivity(intent);
+
+                        }catch (IOException | NullPointerException e) {
+                            AppDatabase.destroyInstance();
+                            DataRepository.destroyInstance();
+                            finish();
+                            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } );
 
     }
 
@@ -132,29 +200,23 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate( R.menu.menu_main, menu );
 
         final MenuItem exportItem = menu.findItem( R.id.action_export );
-        exportItem.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
-                intent.addCategory( Intent.CATEGORY_OPENABLE );
-                intent.setType("application/octet-stream"); //or application/vnd.sqlite3
-                String fileName = new SimpleDateFormat( "yyyy-MM-dd_HH:mm", Locale.ENGLISH ).format( new Date() );
-                fileName += "_SimpleAccount.db";
-                intent.putExtra( Intent.EXTRA_TITLE, fileName );
-                startActivityForResult( intent, REQUEST_CODE_ACTION_CREATE_DOCUMENT );
-                return false;
-            }
+        exportItem.setOnMenuItemClickListener( item -> {
+            Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
+            intent.addCategory( Intent.CATEGORY_OPENABLE );
+            intent.setType("application/octet-stream"); //or application/vnd.sqlite3
+            String fileName = new SimpleDateFormat( "yyyy-MM-dd_HH:mm", Locale.ENGLISH ).format( new Date() );
+            fileName += "_SimpleAccount.db";
+            intent.putExtra( Intent.EXTRA_TITLE, fileName );
+            activityResultLauncherActionCreateDocument.launch( intent );
+            return false;
         } );
 
         final MenuItem importItem = menu.findItem( R.id.action_import );
-        importItem.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("application/octet-stream");
-                startActivityForResult( intent, REQUEST_CODE_ACTION_GET_CONTENT );
-                return false;
-            }
+        importItem.setOnMenuItemClickListener( item -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("application/octet-stream");
+            activityResultLauncherActionGetContent.launch( intent );
+            return false;
         } );
 
         final MenuItem searchItem = menu.findItem( R.id.app_bar_search );
@@ -190,76 +252,14 @@ public class MainActivity extends AppCompatActivity {
                 View view = getCurrentFocus();
                 if (view != null) {
                     InputMethodManager inputMethodManager = (InputMethodManager) getSystemService( Context.INPUT_METHOD_SERVICE );
-                    inputMethodManager.hideSoftInputFromWindow( view.getWindowToken(), 0 );
+                    if (inputMethodManager != null) {
+                        inputMethodManager.hideSoftInputFromWindow( view.getWindowToken(), 0 );
+                    }
                 }
                 return true;
             }
         } );
 
         return super.onCreateOptionsMenu( menu );
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult( requestCode, resultCode, data );
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_ACTION_CREATE_DOCUMENT) {
-            //https://androidexplained.github.io/android/room/2020/10/03/room-backup-restore.html
-            mAccountsViewModel.checkpoint();
-            while(mAccountsViewModel.getCheckpointInProgress())
-            {
-            }
-            try{
-                OutputStream outputStream = getContentResolver().openOutputStream(data.getData());
-                File sourceFile = new File( (((SimpleAccountApp)mAccountsViewModel.getApplication()).getAppDatabase().getOpenHelper().getWritableDatabase().getPath()) );
-                FileInputStream fileInputStream = new FileInputStream(sourceFile);
-
-                int length;
-                byte[] bytes = new byte[1024];
-
-                while ((length = fileInputStream.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, length);
-                }
-
-                fileInputStream.close();
-                outputStream.flush();
-                outputStream.close();
-                Toast.makeText( this, "Success: File saved", Toast.LENGTH_LONG ).show(); //Uri.decode( data.getData().getPath())
-            }catch (IOException e)
-            {
-                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_ACTION_GET_CONTENT) {
-            finish();
-            try {
-                InputStream inputStream = getContentResolver().openInputStream( data.getData() );
-                File destFile = new File(((SimpleAccountApp)mAccountsViewModel.getApplication()).getAppDatabase().getOpenHelper().getWritableDatabase().getPath());
-                FileOutputStream fileOutputStream = new FileOutputStream( destFile );
-
-                AppDatabase.destroyInstance();
-                DataRepository.destroyInstance();
-
-                int length;
-                byte[] bytes = new byte[1024];
-
-                while ((length = inputStream.read(bytes)) != -1) {
-                    fileOutputStream.write(bytes, 0, length);
-                }
-
-                inputStream.close();
-                fileOutputStream.flush();
-                fileOutputStream.close();
-
-                finish();
-                Intent intent = getPackageManager().getLaunchIntentForPackage("de.blocbox.simpleaccount");
-                startActivity(intent);
-
-            }catch (IOException e) {
-                AppDatabase.destroyInstance();
-                DataRepository.destroyInstance();
-                finish();
-                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }

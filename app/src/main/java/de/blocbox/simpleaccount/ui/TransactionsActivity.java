@@ -6,15 +6,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,35 +39,36 @@ public class TransactionsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_transactions );
 
-        getSupportActionBar().setTitle( "View Transactions" );
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setTitle( "View Transactions" );
+        }
 
         Intent intent = getIntent();
-        accountUid = (int) intent.getIntExtra( "AccountEntity.uid", ACCOUNT_UID_UNDEFINED );
+        accountUid = intent.getIntExtra( "AccountEntity.uid", ACCOUNT_UID_UNDEFINED );
 
         transactionsAdapter = new TransactionsAdapter();
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerViewTransactions );
+        final RecyclerView recyclerView = findViewById(R.id.recyclerViewTransactions );
         recyclerView.setAdapter( transactionsAdapter );
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if (accountUid != ACCOUNT_UID_UNDEFINED) {
 
-            final Observer<AccountWithTransactionEntity> accountWithTransactionsObserver = new Observer<AccountWithTransactionEntity>() {
-                @Override
-                public void onChanged(@Nullable final AccountWithTransactionEntity accountWithTransactions) {
-                    // Update the UI
-                    ImageView imageViewIcon = (ImageView) findViewById( R.id.imageViewIcon );
-                    TextView nameTextViewFullName = (TextView) findViewById( R.id.textViewFullName );
-                    TextView nameTextViewAccountType = (TextView) findViewById( R.id.textViewSum );
+            final Observer<AccountWithTransactionEntity> accountWithTransactionsObserver = accountWithTransactions -> {
+                // Update the UI
+                ImageView imageViewIcon = findViewById( R.id.imageViewIcon );
+                TextView nameTextViewFullName = findViewById( R.id.textViewFullName );
+                TextView nameTextViewAccountType = findViewById( R.id.textViewSum );
 
-                    imageViewIcon.setImageResource( Helper.GetDrawableByAccountType( accountWithTransactions.accountEntity.getAccountType() ) );
-                    nameTextViewFullName.setText( accountWithTransactions.accountEntity.getFirstName() + " " + accountWithTransactions.accountEntity.getLastName() );
-                    nameTextViewAccountType.setText( Helper.GetSumOfTransitions( accountWithTransactions.transactionEntities ));
-                    Collections.sort(accountWithTransactions.transactionEntities);
-                    Collections.reverse( accountWithTransactions.transactionEntities );
-                    transactionsAdapter.setTransactions( accountWithTransactions.transactionEntities);
-                }
+                imageViewIcon.setImageResource( Helper.GetDrawableByAccountType( accountWithTransactions.accountEntity.getAccountType() ) );
+                String fullName = accountWithTransactions.accountEntity.getFirstName() + " " + accountWithTransactions.accountEntity.getLastName();
+                nameTextViewFullName.setText( fullName );
+                nameTextViewAccountType.setText( Helper.GetSumOfTransitions( accountWithTransactions.transactionEntities ));
+                Collections.sort(accountWithTransactions.transactionEntities);
+                Collections.reverse( accountWithTransactions.transactionEntities );
+                transactionsAdapter.setTransactions( accountWithTransactions.transactionEntities);
             };
-            mAccountViewModel = (AccountViewModel) ViewModelProviders.of( this ).get( AccountViewModel.class );
+            mAccountViewModel = new ViewModelProvider(this).get( AccountViewModel.class );
             mAccountViewModel.getLiveDataAccountWithTransactions( accountUid ).observe( this, accountWithTransactionsObserver );
 
             SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
@@ -80,31 +80,24 @@ public class TransactionsActivity extends AppCompatActivity {
 
                     mAccountViewModel.deleteTransaction( transactionEntity );
 
-                    Snackbar snackbar = (Snackbar) Snackbar.make( recyclerView, "Item was removed from the list.", Snackbar.LENGTH_INDEFINITE );
-
-                    snackbar.setActionTextColor( Color.WHITE );
-                    snackbar.setAction( "UNDO", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            mAccountViewModel.addTransaction( transactionEntity );
-                            recyclerView.scrollToPosition( position );
-                        }
-                    });
-                    snackbar.show();
-                };
+                    Snackbar.make( recyclerView, "Item was removed from the list.", Snackbar.LENGTH_INDEFINITE )
+                            .setActionTextColor( Color.WHITE )
+                            .setAction( "UNDO", view -> {
+                                mAccountViewModel.addTransaction( transactionEntity );
+                                recyclerView.scrollToPosition( position );
+                                } )
+                            .show();
+                }
             };
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper( swipeToDeleteCallback );
             itemTouchHelper.attachToRecyclerView(recyclerView);
 
             FloatingActionButton fab = findViewById(R.id.floatingActionButtonAddTransaction );
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent i = new Intent(view.getContext(), TransactionActivity.class);
-                    i.putExtra("AccountEntity.uid", accountUid );
-                    view.getContext().startActivity(i);
-                }
-            });
+            fab.setOnClickListener( view -> {
+                Intent i = new Intent(view.getContext(), TransactionActivity.class);
+                i.putExtra("AccountEntity.uid", accountUid );
+                view.getContext().startActivity(i);
+            } );
         }
     }
 
@@ -114,26 +107,20 @@ public class TransactionsActivity extends AppCompatActivity {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate( R.menu.menu_transactions, menu );
             MenuItem updateAccountItem = menu.findItem( R.id.update_account );
-            updateAccountItem.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    Intent intent = new Intent(getBaseContext(), AccountActivity.class);
-                    intent =  intent.putExtra("AccountEntity.uid", accountUid);
-                    startActivity(intent);
-                    //finish();
-                    return true;
-                }
+            updateAccountItem.setOnMenuItemClickListener( menuItem -> {
+                Intent intent = new Intent(getBaseContext(), AccountActivity.class);
+                intent =  intent.putExtra("AccountEntity.uid", accountUid);
+                startActivity(intent);
+                //finish();
+                return true;
             } );
             MenuItem addTransactionItem = menu.findItem( R.id.add_transaction );
-            addTransactionItem.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    Intent intent = new Intent(getBaseContext(), TransactionActivity.class);
-                    intent =  intent.putExtra("AccountEntity.uid", accountUid);
-                    startActivity(intent);
-                    //finish();
-                    return true;
-                }
+            addTransactionItem.setOnMenuItemClickListener( menuItem -> {
+                Intent intent = new Intent(getBaseContext(), TransactionActivity.class);
+                intent =  intent.putExtra("AccountEntity.uid", accountUid);
+                startActivity(intent);
+                //finish();
+                return true;
             } );
         }
         return super.onCreateOptionsMenu( menu );

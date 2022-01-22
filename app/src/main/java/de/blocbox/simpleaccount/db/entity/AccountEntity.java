@@ -13,10 +13,10 @@ public class AccountEntity implements Account {
 
     @PrimaryKey(autoGenerate = true)
     private int uid;
-    @ColumnInfo(name = "first_name")
-    private String firstName;
-    @ColumnInfo(name = "last_name")
-    private String lastName;
+    @ColumnInfo(name = "name")
+    private String name;
+    @ColumnInfo(name = "description")
+    private String description;
     @ColumnInfo(name = "accountType")
     private AccountType accountType;
 
@@ -29,19 +29,19 @@ public class AccountEntity implements Account {
     }
 
     @Override
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
-    public String getLastName() {
-        return lastName;
+    public String getDescription() {
+        return description;
     }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -59,23 +59,23 @@ public class AccountEntity implements Account {
     public AccountEntity(Account account)
     {
         this.uid = account.getUid();
-        this.firstName = account.getFirstName();
-        this.lastName = account.getLastName();
+        this.name = account.getName();
+        this.description = account.getDescription();
         this.accountType = account.getAccountType();
     }
 
     @Ignore
-    public AccountEntity(String firstName, String lastName, AccountType accountType) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public AccountEntity(String name, String description, AccountType accountType) {
+        this.name = name;
+        this.description = description;
         this.accountType = accountType;
     }
 
     @Ignore
-    public AccountEntity(int uid, String firstName, String lastName, AccountType accountType) {
+    public AccountEntity(int uid, String name, String description, AccountType accountType) {
         this.uid = uid;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
+        this.description = description;
         this.accountType = accountType;
     }
 }

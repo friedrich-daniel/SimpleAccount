@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Simple Account</string>
+    <string name="export">Exportieren</string>
+    <string name="import_">Importieren</string>
+
     <string name="add_account">Konto hinzufügen</string>
     <string name="edit_account">Konto bearbeiten</string>
+
+    <string name="account_name">Kontoname</string>
+    <string name="account_description">Kontobeschreibung</string>
+    <string name="account_type">Kontotyp</string>
+    <string name="account_type_default">Standard</string>
+    <string name="account_type_group">Gruppe</string>
+    <string name="account_type_male">Männlich</string>
+    <string name="account_type_female">Weiblich</string>
+
     <string name="view_transactions">Transaktionen anzeigen</string>
     <string name="add_transaction">Transaktion hinzufügen</string>
     <string name="update_transaction">Transaktion aktualisieren</string>
-    <string name="export">Exportieren</string>
-    <string name="import_">Importieren</string>
-    <string name="account_type">Kontotyp</string>
-    <string name="group">Gruppe</string>
-    <string name="male">Männlich</string>
-    <string name="female">Weiblich</string>
-    <string name="first_name">Vorname</string>
-    <string name="last_name">Nachname</string>
+
+    <string name="transactions">Transaktionen</string>
     <string name="amount">Betrag</string>
     <string name="description">Beschreibung</string>
-    <string name="transactions">Transaktionen</string>
+
     <string name="item_removed">wurde aus der Liste entfernt.</string>
     <string name="undo">UNDO</string>
     <string name="save">Speichern</string>
+
 </resources>

@@ -51,19 +51,22 @@ public class AccountActivity extends AppCompatActivity {
 
             final Observer<AccountEntity> accountEntityObserver = accountEntity -> {
                 if (accountEntity.getUid() == accountUid) {
-                    ((EditText) findViewById( R.id.editTextFirstName )).setText( accountEntity.getFirstName() );
-                    ((EditText) findViewById( R.id.editTextLastName )).setText( accountEntity.getLastName() );
+                    ((EditText) findViewById( R.id.editTextAccountName )).setText( accountEntity.getName() );
+                    ((EditText) findViewById( R.id.editTextAccountDescription )).setText( accountEntity.getDescription() );
                     AccountType accountType = accountEntity.getAccountType();
                     switch (accountType) {
+                        case GROUP:
+                            ((RadioButton) findViewById( R.id.radioButtonGroup )).setChecked( true );
+                            break;
                         case FEMALE:
                             ((RadioButton) findViewById( R.id.radioButtonFemale )).setChecked( true );
                             break;
                         case MALE:
                             ((RadioButton) findViewById( R.id.radioButtonMale )).setChecked( true );
                             break;
-                        case GROUP:
+                        case DEFAULT:
                         default:
-                            ((RadioButton) findViewById( R.id.radioButtonGroup )).setChecked( true );
+                            ((RadioButton) findViewById( R.id.radioButtonDefault )).setChecked( true );
                             break;
                     }
                     findViewById( R.id.linear_layout_person ).setVisibility( View.VISIBLE );
@@ -80,10 +83,13 @@ public class AccountActivity extends AppCompatActivity {
         MenuItem saveItem = menu.findItem(R.id.app_bar_save);
         saveItem.setOnMenuItemClickListener( menuItem -> {
 
-            String firstName = ((EditText) findViewById( R.id.editTextFirstName )).getText().toString();
-            String lastName = ((EditText) findViewById( R.id.editTextLastName )).getText().toString();
-            AccountType accountType = AccountType.GROUP;
+            String name = ((EditText) findViewById( R.id.editTextAccountName )).getText().toString();
+            String description = ((EditText) findViewById( R.id.editTextAccountDescription )).getText().toString();
+            AccountType accountType = AccountType.DEFAULT;
 
+            if(((RadioButton) findViewById(R.id.radioButtonGroup)).isChecked()) {
+                accountType = AccountType.GROUP;
+            }
             if(((RadioButton) findViewById(R.id.radioButtonMale)).isChecked()) {
                 accountType = AccountType.MALE;
             }
@@ -92,9 +98,9 @@ public class AccountActivity extends AppCompatActivity {
             }
 
             if(accountUid == ACCOUNT_UID_UNDEFINED) {
-                mAccountViewModel.addPerson( new AccountEntity(firstName, lastName, accountType ) );
+                mAccountViewModel.addPerson( new AccountEntity( name, description, accountType ) );
             }else{
-                mAccountViewModel.updatePerson( new AccountEntity( accountUid, firstName, lastName, accountType ) );
+                mAccountViewModel.updatePerson( new AccountEntity( accountUid, name, description, accountType ) );
             }
 
             finish();

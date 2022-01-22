@@ -1,22 +1,29 @@
 <resources>
     <string name="app_name" translatable="false">Simple Account</string>
+    <string name="export">Export</string>
+    <string name="import_">Import</string>
+
     <string name="add_account">Add Account</string>
     <string name="edit_account">Edit Account</string>
+
+    <string name="account_name">Account name</string>
+    <string name="account_description">Account description</string>
+    <string name="account_type">Account Type</string>
+    <string name="account_type_default">Default</string>
+    <string name="account_type_group">Group</string>
+    <string name="account_type_male">Male</string>
+    <string name="account_type_female">Female</string>
+
     <string name="view_transactions">View Transactions</string>
     <string name="add_transaction">Add Transaction</string>
     <string name="update_transaction">Update Transaction</string>
-    <string name="export">Export</string>
-    <string name="import_">Import</string>
-    <string name="account_type">Account Type</string>
-    <string name="group">Group</string>
-    <string name="male">Male</string>
-    <string name="female">Female</string>
-    <string name="first_name">First name</string>
-    <string name="last_name">Last name</string>
+
+    <string name="transactions">Transactions</string>
     <string name="amount">Amount</string>
     <string name="description">Description</string>
-    <string name="transactions">Transactions</string>
+
     <string name="item_removed">was removed from the list.</string>
     <string name="undo">UNDO</string>
     <string name="save">Save</string>
+
 </resources>

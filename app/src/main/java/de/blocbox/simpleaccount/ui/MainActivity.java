@@ -97,8 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
                 mAccountsViewModel.deletePerson( accountWithTransactionEntity.accountEntity );
 
-                String text = accountWithTransactionEntity.accountEntity.getFirstName() + " " +
-                              accountWithTransactionEntity.accountEntity.getLastName() + " " +
+                String text = accountWithTransactionEntity.accountEntity.getName() + " " +
                               getResources().getString(R.string.item_removed);
 
                 Snackbar.make( recyclerView, text, Snackbar.LENGTH_INDEFINITE )

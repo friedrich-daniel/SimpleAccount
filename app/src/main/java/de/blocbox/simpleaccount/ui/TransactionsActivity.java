@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -56,14 +57,21 @@ public class TransactionsActivity extends AppCompatActivity {
 
             final Observer<AccountWithTransactionEntity> accountWithTransactionsObserver = accountWithTransactions -> {
                 // Update the UI
-                ImageView imageViewIcon = findViewById( R.id.imageViewIcon );
-                TextView nameTextViewFullName = findViewById( R.id.textViewFullName );
-                TextView nameTextViewAccountType = findViewById( R.id.textViewSum );
+                ImageView imageViewIcon = findViewById( R.id.imageViewAccountIcon );
+                TextView textViewAccountName = findViewById( R.id.textViewAccountName );
+                TextView textViewAccountDescription = findViewById( R.id.textViewTransactionsAccountDescription );
+                TextView textViewAccountType = findViewById( R.id.textViewAccountSum );
+
+                textViewAccountDescription.setText( accountWithTransactions.accountEntity.getDescription() );
+                if (accountWithTransactions.accountEntity.getDescription().length() != 0) {
+                    textViewAccountDescription.setVisibility( View.VISIBLE );
+                }else{
+                    textViewAccountDescription.setVisibility( View.GONE );
+                }
 
                 imageViewIcon.setImageResource( Helper.GetDrawableByAccountType( accountWithTransactions.accountEntity.getAccountType() ) );
-                String fullName = accountWithTransactions.accountEntity.getFirstName() + " " + accountWithTransactions.accountEntity.getLastName();
-                nameTextViewFullName.setText( fullName );
-                nameTextViewAccountType.setText( Helper.GetSumOfTransitions( accountWithTransactions.transactionEntities ));
+                textViewAccountName.setText( accountWithTransactions.accountEntity.getName()  );
+                textViewAccountType.setText( Helper.GetSumOfTransitions( accountWithTransactions.transactionEntities ));
                 Collections.sort(accountWithTransactions.transactionEntities);
                 Collections.reverse( accountWithTransactions.transactionEntities );
                 transactionsAdapter.setTransactions( accountWithTransactions.transactionEntities);

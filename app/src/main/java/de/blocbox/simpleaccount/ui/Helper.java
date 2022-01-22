@@ -13,15 +13,18 @@ public class Helper {
     {
         int drawable;
         switch (accountType) {
-            case FEMALE:
-                drawable = R.drawable.ic_face_woman;
+            case GROUP:
+                drawable = R.drawable.ic_group_black_24dp;
                 break;
             case MALE:
                 drawable = R.drawable.ic_face_man;
                 break;
-            case GROUP:
+            case FEMALE:
+                drawable = R.drawable.ic_face_woman;
+                break;
+            case DEFAULT:
             default:
-                drawable = R.drawable.ic_group_black_24dp;
+                drawable = R.drawable.ic_account_balance_black_24dp;
                 break;
         }
         return drawable;

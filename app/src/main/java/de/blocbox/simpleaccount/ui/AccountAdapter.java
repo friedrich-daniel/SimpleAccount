@@ -24,16 +24,16 @@ public class AccountAdapter
         implements Filterable
 {
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ImageView imageViewIcon;
-        public TextView nameTextViewFullName;
-        public TextView nameTextViewSum;
+        public ImageView imageViewAccountIcon;
+        public TextView textViewAccountName;
+        public TextView textViewAccountSum;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            imageViewIcon = itemView.findViewById( R.id.imageViewIcon );
-            nameTextViewFullName = itemView.findViewById( R.id.textViewFullName );
-            nameTextViewSum = itemView.findViewById(R.id.textViewSum );
+            imageViewAccountIcon = itemView.findViewById( R.id.imageViewAccountIcon );
+            textViewAccountName = itemView.findViewById( R.id.textViewAccountName );
+            textViewAccountSum = itemView.findViewById(R.id.textViewAccountSum );
 
             itemView.setOnClickListener(this);
         }
@@ -82,10 +82,9 @@ public class AccountAdapter
 
         // Get the data model based on position
         AccountWithTransactionEntity accountWithTransactionEntity = mAccountEntityListFilter.get(position);
-        viewHolder.imageViewIcon.setImageResource( Helper.GetDrawableByAccountType(accountWithTransactionEntity.accountEntity.getAccountType()));
-        String fullName = accountWithTransactionEntity.accountEntity.getFirstName() + " " + accountWithTransactionEntity.accountEntity.getLastName();
-        viewHolder.nameTextViewFullName.setText( fullName );
-        viewHolder.nameTextViewSum.setText( Helper.GetSumOfTransitions(accountWithTransactionEntity.transactionEntities) );
+        viewHolder.imageViewAccountIcon.setImageResource( Helper.GetDrawableByAccountType(accountWithTransactionEntity.accountEntity.getAccountType()));
+        viewHolder.textViewAccountName.setText( accountWithTransactionEntity.accountEntity.getName() );
+        viewHolder.textViewAccountSum.setText( Helper.GetSumOfTransitions(accountWithTransactionEntity.transactionEntities) );
     }
 
     @Override
@@ -111,9 +110,7 @@ public class AccountAdapter
                 String filterPattern = charSequence.toString().toLowerCase().trim();
                 for (AccountWithTransactionEntity accountWithTransactionEntity : mAccountEntityListFull)
                 {
-                    String search =
-                            accountWithTransactionEntity.accountEntity.getFirstName().toLowerCase() + " " +
-                            accountWithTransactionEntity.accountEntity.getLastName().toLowerCase();
+                    String search = accountWithTransactionEntity.accountEntity.getName().toLowerCase();
 
                     if(search.contains(filterPattern))
                     {

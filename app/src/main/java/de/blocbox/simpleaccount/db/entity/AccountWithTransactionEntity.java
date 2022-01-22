@@ -16,9 +16,6 @@ public class AccountWithTransactionEntity implements Comparable<AccountWithTrans
 
     @Override
     public int compareTo(AccountWithTransactionEntity o) {
-        String string1 = accountEntity.getFirstName() + accountEntity.getLastName();
-        String string2 = o.accountEntity.getFirstName() + o.accountEntity.getLastName();
-
-        return  string1.compareTo( string2 );
+        return  accountEntity.getName().compareTo( o.accountEntity.getName() );
     }
 }
